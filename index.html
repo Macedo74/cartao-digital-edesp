@@ -4,10 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cartão de Visitas Digital</title>
-    <!-- Biblioteca para gerar QR Code -->
+    <title>Cartão de Visitas Digital - Valmir Macedo</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- Ícones Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
@@ -112,29 +110,21 @@
             color: var(--secondary-color);
         }
 
-        #qrcode {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-            padding: 10px;
-        }
-
         .footer-text {
             font-size: 0.8em;
             color: #64748b;
             margin-top: 10px;
         }
 
-        /* Nova estilização para o QR Code com Logo */
+        /* Estilização conteiner do QR Code com Logo */
         #qrcode-container {
             position: relative;
-            /* Necessário para alinhar o logo dentro */
             display: inline-block;
             margin-top: 20px;
             padding: 10px;
             background: white;
-            /* Garante fundo branco para o código */
             border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         /* Alinha o QR Code gerado pelo JS */
@@ -143,23 +133,19 @@
             justify-content: center;
         }
 
-        /* Estilo do Logo sobreposto */
+        /* Estilo da Logo centralizada sobreposta */
         .qr-logo {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            /* Centraliza perfeitamente */
             width: 35px;
-            /* Tamanho do logo (não aumente muito!) */
             height: 35px;
             background-color: white;
-            /* Borda branca ao redor do logo */
             padding: 3px;
-            border-radius: 5px;
-            /* Deixa o fundo do logo redondinho */
+            border-radius: 6px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            /* Sombra leve para destacar */
+            z-index: 10;
         }
     </style>
 </head>
@@ -168,7 +154,6 @@
 
     <div class="card">
         <div class="header-bg">
-            <!-- Substitua pela URL da sua foto -->
             <img src="assets/valmir.png" alt="Foto de Perfil" class="profile-img">
         </div>
 
@@ -176,7 +161,6 @@
         <div class="cargo">Chefe de Seção</div>
 
         <div class="links-container">
-            <!-- Botão VCard -->
             <button onclick="gerarVCard()" class="btn btn-vcard">
                 <i class="fas fa-user-plus"></i> Salvar Contato
             </button>
@@ -189,7 +173,6 @@
                 <i class="fas fa-phone"></i> Telefone Fixo
             </a>
 
-
             <a href="https://linkedin.com/in/valmirmacedo" class="btn btn-linkedin" target="_blank">
                 <i class="fab fa-linkedin"></i> LinkedIn
             </a>
@@ -200,9 +183,9 @@
 
             <div id="qrcode-container">
                 <div id="qrcode"></div>
-                <!-- Insira aqui o link da sua logo. Pode ser um link da internet ou arquivo local -->
                 <img src="assets/logo_edesp.png" alt="Logo EDESP" class="qr-logo">
             </div>
+
             <div class="footer-text">Escaneie para compartilhar este cartão</div>
         </div>
     </div>
@@ -220,20 +203,15 @@
             site: "www.desenvolvimentosocial.sp.gov.br"
         };
 
-        // 2. FUNÇÃO PARA GERAR E BAIXAR O VCARD (.VCF)
+        // 2. FUNÇÃO PARA GERAR E BAIXAR O VCARD (.VCF) COM NOME COMPLETO
         function gerarVCard() {
-            // Unimos as duas propriedades que você criou
             const nomeExibicao = `${dadosContato.nome} ${dadosContato.sobrenome}`;
 
             let vcfContent = "BEGIN:VCARD\r\n";
             vcfContent += "VERSION:3.0\r\n";
-
-            // FN é o nome que aparece na lista de contatos
+            vcfContent += `REV:${new Date().toISOString()}\r\n`;
             vcfContent += `FN;CHARSET=UTF-8:${nomeExibicao}\r\n`;
-
-            // N é a estrutura da agenda (Sobrenome;Nome)
             vcfContent += `N;CHARSET=UTF-8:${dadosContato.sobrenome};${dadosContato.nome};;;\r\n`;
-
             vcfContent += `ORG;CHARSET=UTF-8:${dadosContato.empresa}\r\n`;
             vcfContent += `TITLE;CHARSET=UTF-8:${dadosContato.cargo}\r\n`;
             vcfContent += `TEL;TYPE=CELL:${dadosContato.celular}\r\n`;
@@ -246,9 +224,7 @@
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-
-            // Nome do arquivo para download
-            link.download = `Contato_${dadosContato.nome}.vcf`;
+            link.download = `Contato_${dadosContato.nome}_${dadosContato.sobrenome}.vcf`;
 
             document.body.appendChild(link);
             link.click();
@@ -257,6 +233,29 @@
                 document.body.removeChild(link);
                 window.URL.revokeObjectURL(url);
             }, 100);
+        }
+
+        // 3. FUNÇÃO DE CORREÇÃO: GERAR O QR CODE AUTOMATICAMENTE
+        function renderizarQRCode() {
+            const container = document.getElementById("qrcode");
+            if (container) {
+                container.innerHTML = ""; // Limpa lixo de memória
+                new QRCode(container, {
+                    text: window.location.href, // Captura o link do GitHub Pages automaticamente
+                    width: 140,
+                    height: 140,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H // Nível alto para não quebrar com a logo por cima
+                });
+            }
+        }
+
+        // Executa a geração assim que o HTML carregar na tela
+        if (document.readyState === "complete" || document.readyState === "interactive") {
+            renderizarQRCode();
+        } else {
+            document.addEventListener("DOMContentLoaded", renderizarQRCode);
         }
     </script>
 
