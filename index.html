@@ -222,57 +222,42 @@
 
         // 2. FUNÇÃO PARA GERAR E BAIXAR O VCARD (.VCF)
         function gerarVCard() {
-            const nomeCompleto = dadosContato.nome; // Ex: "João Silva"
+            // Unimos as duas propriedades que você criou
+            const nomeExibicao = `${dadosContato.nome} ${dadosContato.sobrenome}`;
 
-            // 1. Criamos o conteúdo como um Array para garantir ordem e clareza
-            // Usamos o \r\n (CRLF) explicitamente ao final de cada linha, que é o padrão vCard
             let vcfContent = "BEGIN:VCARD\r\n";
             vcfContent += "VERSION:3.0\r\n";
-            vcfContent += "FN:" + nomeCompleto + "\r\n";
-            vcfContent += "N:" + nomeCompleto + ";;;;\r\n"; // Nome completo no primeiro índice do N
-            vcfContent += "ORG:" + dadosContato.empresa + "\r\n";
-            vcfContent += "TITLE:" + dadosContato.cargo + "\r\n";
-            vcfContent += "TEL;TYPE=CELL:" + dadosContato.celular + "\r\n";
-            vcfContent += "TEL;TYPE=WORK:" + dadosContato.fixo + "\r\n";
-            vcfContent += "EMAIL:" + dadosContato.email + "\r\n";
-            vcfContent += "URL:" + dadosContato.site + "\r\n";
+
+            // FN é o nome que aparece na lista de contatos
+            vcfContent += `FN;CHARSET=UTF-8:${nomeExibicao}\r\n`;
+
+            // N é a estrutura da agenda (Sobrenome;Nome)
+            vcfContent += `N;CHARSET=UTF-8:${dadosContato.sobrenome};${dadosContato.nome};;;\r\n`;
+
+            vcfContent += `ORG;CHARSET=UTF-8:${dadosContato.empresa}\r\n`;
+            vcfContent += `TITLE;CHARSET=UTF-8:${dadosContato.cargo}\r\n`;
+            vcfContent += `TEL;TYPE=CELL:${dadosContato.celular}\r\n`;
+            vcfContent += `TEL;TYPE=WORK:${dadosContato.fixo}\r\n`;
+            vcfContent += `EMAIL:${dadosContato.email}\r\n`;
+            vcfContent += `URL:${dadosContato.site}\r\n`;
             vcfContent += "END:VCARD";
 
-            // 2. O segredo para o celular: Usar um Blob com o tipo MIME correto e charset
             const blob = new Blob([vcfContent], { type: "text/vcard;charset=utf-8" });
-
-            // 3. Processo de download
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
 
-            // Nome do arquivo sem espaços para evitar erros no Android
-            const fileName = nomeCompleto.split(' ')[0] + "_Contato.vcf";
-            link.download = fileName;
+            // Nome do arquivo para download
+            link.download = `Contato_${dadosContato.nome}.vcf`;
 
             document.body.appendChild(link);
             link.click();
 
-            // Limpeza
             setTimeout(() => {
                 document.body.removeChild(link);
                 window.URL.revokeObjectURL(url);
             }, 100);
         }
-
-        // 3. GERAÇÃO AUTOMÁTICA DO QR CODE
-        // Ele pega a URL atual do navegador (window.location.href)
-        window.onload = function () {
-            new QRCode(document.getElementById("qrcode"), {
-                text: window.location.href, // Mantém o fluxo Recomendado (abre o site)
-                width: 130, // Aumentei um pouquinho o tamanho para acomodar o logo
-                height: 130,
-                colorDark: "#000000", // Preto padrão para melhor leitura
-                colorLight: "#ffffff",
-                // ESTA É A CONFIGURAÇÃO MAIS IMPORTANTE:
-                correctLevel: QRCode.CorrectLevel.H
-            });
-        };
     </script>
 
 </body>
