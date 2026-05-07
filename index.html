@@ -222,22 +222,34 @@
 
         // 2. FUNÇÃO PARA GERAR E BAIXAR O VCARD (.VCF)
         function gerarVCard() {
+            // 1. Pega o nome completo dos seus dados
+            const nomeCompleto = dadosContato.nome;
+
+            // 2. Divide para preencher o campo N (necessário para o sobrenome aparecer)
+            const nomeArray = nomeCompleto.split(" ");
+            const primeiroNome = nomeArray[0];
+            const sobrenome = nomeArray.slice(1).join(" ");
+
+            // 3. Monta o vCard com suporte a acentos (UTF-8) e nome completo (FN + N)
             const vcard = `BEGIN:VCARD
 VERSION:3.0
-FN:${dadosContato.nome}
-ORG:${dadosContato.empresa}
-TITLE:${dadosContato.cargo}
+REV:${new Date().toISOString()}
+FN;CHARSET=UTF-8:${nomeCompleto}
+N;CHARSET=UTF-8:${sobrenome};${primeiroNome};;;
+ORG;CHARSET=UTF-8:${dadosContato.empresa}
+TITLE;CHARSET=UTF-8:${dadosContato.cargo}
 TEL;TYPE=CELL:${dadosContato.celular}
 TEL;TYPE=WORK:${dadosContato.fixo}
-EMAIL:${dadosContato.email}
-URL:${dadosContato.site}
+EMAIL;CHARSET=UTF-8:${dadosContato.email}
+URL;CHARSET=UTF-8:${dadosContato.site}
 END:VCARD`;
 
-            const blob = new Blob([vcard], { type: "text/vcard" });
+            // 4. Cria o arquivo garantindo que o navegador entenda a codificação UTF-8
+            const blob = new Blob([vcard], { type: "text/vcard;charset=utf-8" });
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-            link.download = `${dadosContato.nome}.vcf`;
+            link.download = `${nomeCompleto}.vcf`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
