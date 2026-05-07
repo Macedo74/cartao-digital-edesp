@@ -222,37 +222,42 @@
 
         // 2. FUNÇÃO PARA GERAR E BAIXAR O VCARD (.VCF)
         function gerarVCard() {
-            // 1. Pega o nome completo dos seus dados
-            const nomeCompleto = dadosContato.nome;
+            const nomeCompleto = dadosContato.nome; // Ex: "João Silva"
 
-            // 2. Divide para preencher o campo N (necessário para o sobrenome aparecer)
-            const nomeArray = nomeCompleto.split(" ");
-            const primeiroNome = nomeArray[0];
-            const sobrenome = nomeArray.slice(1).join(" ");
+            // 1. Criamos o conteúdo como um Array para garantir ordem e clareza
+            // Usamos o \r\n (CRLF) explicitamente ao final de cada linha, que é o padrão vCard
+            let vcfContent = "BEGIN:VCARD\r\n";
+            vcfContent += "VERSION:3.0\r\n";
+            vcfContent += "FN:" + nomeCompleto + "\r\n";
+            vcfContent += "N:" + nomeCompleto + ";;;;\r\n"; // Nome completo no primeiro índice do N
+            vcfContent += "ORG:" + dadosContato.empresa + "\r\n";
+            vcfContent += "TITLE:" + dadosContato.cargo + "\r\n";
+            vcfContent += "TEL;TYPE=CELL:" + dadosContato.celular + "\r\n";
+            vcfContent += "TEL;TYPE=WORK:" + dadosContato.fixo + "\r\n";
+            vcfContent += "EMAIL:" + dadosContato.email + "\r\n";
+            vcfContent += "URL:" + dadosContato.site + "\r\n";
+            vcfContent += "END:VCARD";
 
-            // 3. Monta o vCard com suporte a acentos (UTF-8) e nome completo (FN + N)
-            const vcard = `BEGIN:VCARD
-VERSION:3.0
-REV:${new Date().toISOString()}
-FN;CHARSET=UTF-8:${nomeCompleto}
-N;CHARSET=UTF-8:${sobrenome};${primeiroNome};;;
-ORG;CHARSET=UTF-8:${dadosContato.empresa}
-TITLE;CHARSET=UTF-8:${dadosContato.cargo}
-TEL;TYPE=CELL:${dadosContato.celular}
-TEL;TYPE=WORK:${dadosContato.fixo}
-EMAIL;CHARSET=UTF-8:${dadosContato.email}
-URL;CHARSET=UTF-8:${dadosContato.site}
-END:VCARD`;
+            // 2. O segredo para o celular: Usar um Blob com o tipo MIME correto e charset
+            const blob = new Blob([vcfContent], { type: "text/vcard;charset=utf-8" });
 
-            // 4. Cria o arquivo garantindo que o navegador entenda a codificação UTF-8
-            const blob = new Blob([vcard], { type: "text/vcard;charset=utf-8" });
+            // 3. Processo de download
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-            link.download = `${nomeCompleto}.vcf`;
+
+            // Nome do arquivo sem espaços para evitar erros no Android
+            const fileName = nomeCompleto.split(' ')[0] + "_Contato.vcf";
+            link.download = fileName;
+
             document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
+
+            // Limpeza
+            setTimeout(() => {
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            }, 100);
         }
 
         // 3. GERAÇÃO AUTOMÁTICA DO QR CODE
