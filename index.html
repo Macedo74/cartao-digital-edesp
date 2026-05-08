@@ -21,9 +21,10 @@
             background-color: var(--bg-color);
             margin: 0;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            padding: 20px 0;
         }
 
         .card {
@@ -37,11 +38,24 @@
             padding-bottom: 25px;
         }
 
+        /* AJUSTE DO HEADER COM LOGOS */
         .header-bg {
             background: var(--secondary-color);
-            height: 100px;
+            height: 110px;
             margin-bottom: 60px;
             position: relative;
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            box-sizing: border-box;
+        }
+
+        .logo-topo {
+            height: 25px;
+            width: auto;
+            filter: brightness(0) invert(1);
+            /* Deixa as logos brancas */
+            opacity: 0.9;
         }
 
         .profile-img {
@@ -74,25 +88,41 @@
         }
 
         .btn {
-            display: flex;
+            display: flex !important;
+            /* Força o comportamento de linha */
+            flex-direction: row;
+            /* Garante que é horizontal */
             align-items: center;
+            /* Centraliza verticalmente */
             justify-content: center;
-            gap: 10px;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 10px;
+            /* Centraliza horizontalmente */
+            gap: 12px;
+            /* Espaço fixo entre ícone e texto */
+            padding: 14px 20px;
+            margin: 12px 0;
+            border-radius: 12px;
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
             transition: 0.3s;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            font-size: 16px;
+            box-sizing: border-box;
+            /* Essencial para o padding não esticar o botão */
+        }
+
+        /* Isso garante que o ícone não mude de tamanho */
+        .btn i {
+            flex-shrink: 0;
+            font-size: 1.2em;
+            width: 24px;
+            text-align: center;
         }
 
         .btn-vcard {
             background-color: var(--primary-color);
             color: white;
-            border: none;
-            width: 100%;
-            cursor: pointer;
-            font-size: 1em;
         }
 
         .btn-whatsapp {
@@ -108,15 +138,23 @@
         .btn-outline {
             border: 1px solid #ddd;
             color: var(--secondary-color);
+            background: white;
         }
 
-        .footer-text {
-            font-size: 0.8em;
-            color: #64748b;
-            margin-top: 10px;
+        /* ESCONDER PAINEL DEMO POR PADRÃO */
+        .demo-panel {
+            display: none;
+            /* Mude para 'block' se quiser editar */
+            width: 90%;
+            max-width: 350px;
+            margin-top: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            text-align: left;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         }
 
-        /* Estilização conteiner do QR Code com Logo */
         #qrcode-container {
             position: relative;
             display: inline-block;
@@ -124,28 +162,24 @@
             padding: 10px;
             background: white;
             border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
-        /* Alinha o QR Code gerado pelo JS */
-        #qrcode {
-            display: flex;
-            justify-content: center;
-        }
-
-        /* Estilo da Logo centralizada sobreposta */
         .qr-logo {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 35px;
-            height: 35px;
-            background-color: white;
-            padding: 3px;
-            border-radius: 6px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            z-index: 10;
+            width: 30px;
+            height: 30px;
+            background: white;
+            padding: 2px;
+            border-radius: 4px;
+        }
+
+        .footer-text {
+            font-size: 0.8em;
+            color: #64748b;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -154,6 +188,9 @@
 
     <div class="card">
         <div class="header-bg">
+            <img src="assets/logo_governo.png" alt="Governo SP" class="logo-topo">
+            <img src="assets/logo_edesp.png" alt="Logo EDESP" class="logo-topo">
+
             <img src="assets/valmir.png" alt="Foto de Perfil" class="profile-img">
         </div>
 
@@ -183,19 +220,26 @@
 
             <div id="qrcode-container">
                 <div id="qrcode"></div>
-                <img src="assets/logo_edesp.png" alt="Logo EDESP" class="qr-logo">
+                <img src="assets/logo_edesp.png" alt="Logo QR" class="qr-logo">
             </div>
 
-            <div class="footer-text">Escaneie para compartilhar este cartão</div>
+            <div class="footer-text">Escaneie para compartilhar</div>
         </div>
     </div>
 
+    <div class="demo-panel">
+        <h4 style="margin-top:0">Painel de Edição (Demo)</h4>
+        <input id="campo-nome" type="text" placeholder="Nome" value="Valmir" style="width:100%; margin-bottom:5px;">
+        <input id="campo-sobrenome" type="text" placeholder="Sobrenome" value="Macedo"
+            style="width:100%; margin-bottom:5px;">
+        <button onclick="renderizarQRCode()" class="btn btn-outline">Atualizar Tudo</button>
+    </div>
+
     <script>
-        // 1. DADOS DO CONTATO
         const dadosContato = {
             nome: "Valmir",
             sobrenome: "Macedo",
-            empresa: "Escola de Desenvolvimento Social do Estado de São Paulo - EDESP",
+            empresa: "Escola de Desenvolvimento Social - EDESP",
             cargo: "Chefe de Seção",
             celular: "+5541998274698",
             fixo: "+551127638280",
@@ -203,62 +247,31 @@
             site: "www.desenvolvimentosocial.sp.gov.br"
         };
 
-        // 2. FUNÇÃO PARA GERAR E BAIXAR O VCARD (.VCF) COM NOME COMPLETO
         function gerarVCard() {
             const nomeExibicao = `${dadosContato.nome} ${dadosContato.sobrenome}`;
+            let vcf = `BEGIN:VCARD\nVERSION:3.0\nFN:${nomeExibicao}\nN:${dadosContato.sobrenome};${dadosContato.nome};;;\nORG:${dadosContato.empresa}\nTITLE:${dadosContato.cargo}\nTEL;TYPE=CELL:${dadosContato.celular}\nTEL;TYPE=WORK:${dadosContato.fixo}\nEMAIL:${dadosContato.email}\nURL:${dadosContato.site}\nEND:VCARD`;
 
-            let vcfContent = "BEGIN:VCARD\r\n";
-            vcfContent += "VERSION:3.0\r\n";
-            vcfContent += `REV:${new Date().toISOString()}\r\n`;
-            vcfContent += `FN;CHARSET=UTF-8:${nomeExibicao}\r\n`;
-            vcfContent += `N;CHARSET=UTF-8:${dadosContato.sobrenome};${dadosContato.nome};;;\r\n`;
-            vcfContent += `ORG;CHARSET=UTF-8:${dadosContato.empresa}\r\n`;
-            vcfContent += `TITLE;CHARSET=UTF-8:${dadosContato.cargo}\r\n`;
-            vcfContent += `TEL;TYPE=CELL:${dadosContato.celular}\r\n`;
-            vcfContent += `TEL;TYPE=WORK:${dadosContato.fixo}\r\n`;
-            vcfContent += `EMAIL:${dadosContato.email}\r\n`;
-            vcfContent += `URL:${dadosContato.site}\r\n`;
-            vcfContent += "END:VCARD";
-
-            const blob = new Blob([vcfContent], { type: "text/vcard;charset=utf-8" });
+            const blob = new Blob([vcf], { type: "text/vcard" });
             const url = window.URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = `Contato_${dadosContato.nome}_${dadosContato.sobrenome}.vcf`;
-
-            document.body.appendChild(link);
-            link.click();
-
-            setTimeout(() => {
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
-            }, 100);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "contato.vcf";
+            a.click();
         }
 
-        // 3. FUNÇÃO DE CORREÇÃO: GERAR O QR CODE AUTOMATICAMENTE
         function renderizarQRCode() {
             const container = document.getElementById("qrcode");
-            if (container) {
-                container.innerHTML = ""; // Limpa lixo de memória
-                new QRCode(container, {
-                    text: window.location.href, // Captura o link do GitHub Pages automaticamente
-                    width: 140,
-                    height: 140,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H // Nível alto para não quebrar com a logo por cima
-                });
-            }
+            container.innerHTML = "";
+            new QRCode(container, {
+                text: window.location.href,
+                width: 140,
+                height: 140,
+                correctLevel: QRCode.CorrectLevel.H
+            });
         }
 
-        // Executa a geração assim que o HTML carregar na tela
-        if (document.readyState === "complete" || document.readyState === "interactive") {
-            renderizarQRCode();
-        } else {
-            document.addEventListener("DOMContentLoaded", renderizarQRCode);
-        }
+        window.onload = renderizarQRCode;
     </script>
-
 </body>
 
 </html>
