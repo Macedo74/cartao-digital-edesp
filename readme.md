@@ -34,4 +34,3 @@ O **LinkEDESP** é uma solução de networking digital desenvolvida para facilit
 │   └── logo_edesp.png  # Logo institucional para o QR Code
 └── README.md           # Documentação do projeto
 
-![Preview do Cartão Digital](assets/telavcard.png)
